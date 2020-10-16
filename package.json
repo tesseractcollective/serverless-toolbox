@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/serverless-toolbox",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Reusable building blocks for AWS Lambda, API Gateway, DynamoDB and S3",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -12,7 +12,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "rm -rf ./dist/* && tsc"
+    "build": "rm -rf ./dist/* && tsc",
+    "publish": "yarn build && npm publish --access public"
   },
   "dependencies": {
     "aws-serverless-express": "^3.3.8",
