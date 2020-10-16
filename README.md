@@ -17,10 +17,6 @@ export default interface ObjectStore<T> {
 
 This library provides sensible defaults for API Gateway using express. It also provides a websocket subscription service for API Gateway.
 
-## Hasura
-
-This library provides type definitions and simple helpers for consuming Hasura [actions](https://hasura.io/docs/1.0/graphql/core/actions/index.html) and [events](https://hasura.io/docs/1.0/graphql/core/event-triggers/index.html).
-
 ## Auth
 
 This library provides sensible defaults and helpers for hashing and verifying passwords and dealing with tokens.

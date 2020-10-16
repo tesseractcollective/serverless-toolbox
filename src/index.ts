@@ -62,9 +62,3 @@ export {
 
 // AWS Resources
 export * from "./awsResource";
-
-// Hasura
-import HasuraApi from "./hasura/HasuraApi";
-export * from "./hasura/hasuraTypes";
-export * from "./hasura/hasuraHelpers";
-export { HasuraApi };

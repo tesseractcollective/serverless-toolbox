@@ -1,10 +1,13 @@
 {
-  "name": "serverless-toolbox",
-  "version": "0.2.2",
-  "description": "Reusable building blocks for AWS and Hasura",
+  "name": "@tesseractcollective/serverless-toolbox",
+  "version": "0.3.0",
+  "description": "Reusable building blocks for AWS Lambda, API Gateway, DynamoDB and S3",
   "main": "dist/index.js",
-  "typings": "./dist/index.d.ts",
-  "repository": "https://github.com/tesseract-collective/serverless-toolbox",
+  "typings": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tesseractcollective/serverless-toolbox.git"
+  },
   "author": "Tesseract Collective",
   "license": "MIT",
   "private": false,
@@ -14,8 +17,7 @@
   "dependencies": {
     "aws-serverless-express": "^3.3.8",
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "source-map-support": "^0.5.19"
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@types/aws-serverless-express": "^3.3.3",
@@ -30,10 +32,14 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn build && git add dist/ && lint-staged"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
     "*.{ts,js,css,md}": "prettier --write"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/tesseractcollective/serverless-toolbox/issues"
+  },
+  "homepage": "https://github.com/tesseractcollective/serverless-toolbox#readme"
 }
