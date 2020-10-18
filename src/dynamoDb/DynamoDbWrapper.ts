@@ -223,7 +223,8 @@ export default class DynamoDbWrapper {
   static cloudFormationForTable = function (
     name: string,
     primaryKey: { name: string; type: ScalarAttributeType },
-    secondaryKey?: { name: string; type: ScalarAttributeType }
+    secondaryKey?: { name: string; type: ScalarAttributeType },
+    timeToLiveAttributeName?: string
   ): CloudFormation {
     const attributes = [
       { AttributeName: primaryKey.name, AttributeType: primaryKey.type },
@@ -236,7 +237,8 @@ export default class DynamoDbWrapper {
       });
       keySchema.push({ AttributeName: secondaryKey.name, KeyType: "RANGE" });
     }
-    return {
+
+    const params: CloudFormation = {
       Type: "AWS::DynamoDB::Table",
       Properties: {
         TableName: name,
@@ -245,12 +247,27 @@ export default class DynamoDbWrapper {
         BillingMode: "PAY_PER_REQUEST",
       },
     };
+
+    if (timeToLiveAttributeName) {
+      params.Properties.TimeToLiveSpecification = {
+        AttributeName: timeToLiveAttributeName,
+        Enabled: "TRUE",
+      };
+    }
+
+    return params;
   };
 
   static cloudFormationForTableWithId = function (
-    name: string
+    name: string,
+    timeToLiveAttributeName?: string
   ): CloudFormation {
-    return this.cloudFormationForTable(name, { name: "id", type: "S" });
+    return this.cloudFormationForTable(
+      name,
+      { name: "id", type: "S" },
+      undefined,
+      timeToLiveAttributeName
+    );
   };
 
   private async batchGetWithRequestMap(
