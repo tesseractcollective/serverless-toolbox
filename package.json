@@ -13,6 +13,7 @@
   "private": false,
   "scripts": {
     "build": "rm -rf ./dist/* && tsc",
+    "prepublishOnly": "yarn build",
     "test": "jest"
   },
   "dependencies": {
