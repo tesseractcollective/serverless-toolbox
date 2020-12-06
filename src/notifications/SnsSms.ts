@@ -41,8 +41,8 @@ export default class Sms {
   static iamRoleStatements = (): IamRoleStatement => {
     return {
       Effect: "Allow",
-      Action: ["sns:Publish"],
-      Resource: `arn:aws:sns:us-east-1:*:*`,
+      Action: ["sns:SetSMSAttributes", "sns:Publish"],
+      Resource: "*", // * for arbitrary mobile numbers
     };
   };
 }
