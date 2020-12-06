@@ -37,8 +37,22 @@ export { S3Wrapper };
 
 // Auth
 import PasswordAuth, { PasswordHash } from "./auth/PasswordAuth";
+import JwtAuth, {
+  JwtConfiguration,
+  JwtData,
+  User,
+  UserIdBox,
+} from "./auth/JwtAuth";
 export * from "./auth/Auth";
-export { PasswordAuth, PasswordHash };
+export {
+  JwtAuth,
+  JwtConfiguration,
+  JwtData,
+  User,
+  UserIdBox,
+  PasswordAuth,
+  PasswordHash,
+};
 
 // API Gateway
 import ApiGatewayExpress from "./apiGateway/ApiGatewayExpress";
@@ -63,6 +77,11 @@ export {
   Subscription,
   Subscriber,
 };
+
+// Notifications
+import SesEmail from "./notifications/SesEmail";
+import SnsSms from "./notifications/SnsSms";
+export { SesEmail, SnsSms };
 
 // AWS Resources
 export * from "./awsResource";
