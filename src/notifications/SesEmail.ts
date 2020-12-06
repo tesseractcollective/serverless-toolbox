@@ -14,15 +14,16 @@ export default class SesEmail {
     this.fromName = fromName;
   }
 
-  async sendEmail(email: string, htmlMessage: string): Promise<string> {
+  async sendEmail(
+    email: string,
+    subject: string,
+    htmlMessage: string
+  ): Promise<string> {
     const params: SendEmailRequest = {
       Destination: { ToAddresses: [email] },
       Message: {
         Body: { Html: { Charset: "UTF-8", Data: htmlMessage } },
-        Subject: {
-          Charset: "UTF-8",
-          Data: `Password reset from ${this.fromName}`,
-        },
+        Subject: { Charset: "UTF-8", Data: subject },
       },
       Source: this.fromEmail,
     };

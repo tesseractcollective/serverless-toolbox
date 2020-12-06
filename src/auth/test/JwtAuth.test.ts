@@ -39,7 +39,11 @@ function createJwtAuth(): JwtAuth {
 
 async function createAuthAndUser(): Promise<{ auth: JwtAuth; user: User }> {
   const auth = createJwtAuth();
-  const user = await auth.createUser(testEmail, testPassword, testRole);
+  const { user, token } = await auth.createUser(
+    testEmail,
+    testPassword,
+    testRole
+  );
   return { auth, user };
 }
 
@@ -154,7 +158,7 @@ describe("JwtAuth", () => {
   it("should add a mobile number and create a verify ticket", async () => {
     const { auth, user } = await createAuthAndUser();
     const mobileNumber = "12223334444";
-    const ticket = await auth.addMobile(user.email, mobileNumber, 0.01);
+    const ticket = await auth.addMobile(user.id, mobileNumber, 0.01);
     expect(ticket?.length).toEqual(6);
     const updatedUser = await auth.getUser(user.id);
     expect(updatedUser?.mobile).toEqual(mobileNumber);
@@ -163,25 +167,21 @@ describe("JwtAuth", () => {
   it("should verify a mobile number", async () => {
     const { auth, user } = await createAuthAndUser();
     const mobileNumber = "12223334444";
-    const ticket = await auth.addMobile(user.email, mobileNumber, 0.01);
+    const ticket = await auth.addMobile(user.id, mobileNumber, 0.01);
 
-    const verifiedUser = await auth.verifyMobile(
-      user.email,
-      ticket || "",
-      mobileNumber
-    );
+    const verifiedUser = await auth.verifyMobile(user.id, ticket || "");
     expect(verifiedUser.mobileVerified).toStrictEqual(true);
   });
 
   it("should not verify a mobile number if ticket is expired", async () => {
     const { auth, user } = await createAuthAndUser();
     const mobileNumber = "12223334444";
-    const ticket = await auth.addMobile(user.email, mobileNumber, 0.01);
+    const ticket = await auth.addMobile(user.id, mobileNumber, 0.01);
     await sleep(20);
 
     let errorMessage: string | undefined;
     try {
-      await auth.verifyMobile(user.email, ticket || "", mobileNumber);
+      await auth.verifyMobile(user.id, ticket || "");
     } catch (error) {
       errorMessage = error.message;
     }

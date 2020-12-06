@@ -32,25 +32,28 @@ export interface UserIdBox {
 }
 export type JwtConfiguration = (user: User) => JwtData;
 
-const emailOrPasswordError = new HttpError(400, "incorrect email or password");
 const nanoidTextCodeCreator = customAlphabet("0123456789", 6);
 
 export default class JwtAuth {
   private readonly passwordAuth = new PasswordAuth();
   private readonly passwordStore: ObjectStore<PasswordHash>;
   private readonly expiringTicketStore: ExpiringObjectStore<TicketBox>;
-  private readonly emailMapStore: ObjectStore<UserIdBox>;
+  private readonly cacheMapStore: ObjectStore<UserIdBox>;
   private readonly userStore: ObjectStore<User>;
   private readonly jwtConfiguration: JwtConfiguration;
   private readonly minPasswordLength: number;
 
   readonly jwtTimeToLive: number;
   readonly jwtSecret: string;
+  readonly emailOrPasswordError = new HttpError(
+    400,
+    "incorrect email or password"
+  );
 
   constructor(
     passwordStore: ObjectStore<PasswordHash>,
     expiringTicketStore: ExpiringObjectStore<TicketBox>,
-    emailMapStore: ObjectStore<UserIdBox>,
+    cacheMapStore: ObjectStore<UserIdBox>,
     userStore: ObjectStore<User>,
     jwtSecret: string,
     jwtConfiguration: JwtConfiguration,
@@ -58,7 +61,7 @@ export default class JwtAuth {
   ) {
     this.passwordStore = passwordStore;
     this.expiringTicketStore = expiringTicketStore;
-    this.emailMapStore = emailMapStore;
+    this.cacheMapStore = cacheMapStore;
     this.userStore = userStore;
     this.jwtTimeToLive = -1;
     this.jwtSecret = jwtSecret;
@@ -76,7 +79,7 @@ export default class JwtAuth {
     email: string,
     password: string,
     role: string
-  ): Promise<User> {
+  ): Promise<{ user: User; token: string }> {
     try {
       let userId = await this.getUserIdForEmail(email);
       if (userId) {
@@ -101,15 +104,14 @@ export default class JwtAuth {
       };
       const hash = await this.passwordAuth.createHash(password);
 
-      return Promise.all([
+      await Promise.all([
         this.userStore.put(userId, user),
-        this.emailMapStore.put(email, { userId: userId }),
+        this.cacheMapStore.put(email, { userId: userId }),
         this.passwordStore.put(userId, hash),
-      ])
-        .then(() => user)
-        .catch((err) =>
-          Promise.reject(new HttpError(500, "error saving user to database"))
-        );
+      ]);
+
+      const token = this.createJwt(user);
+      return { user, token };
     } catch (error) {
       return Promise.reject(new HttpError(400, error.message));
     }
@@ -117,7 +119,7 @@ export default class JwtAuth {
 
   /**
    * Gets user.
-   * @param email User account email.
+   * @param id User id.
    */
   async getUser(id: string): Promise<User | undefined> {
     return this.userStore.get(id);
@@ -168,26 +170,22 @@ export default class JwtAuth {
     } catch (error) {
       return Promise.reject(new HttpError(400, error.message));
     }
-    return Promise.reject(emailOrPasswordError);
+    return Promise.reject(this.emailOrPasswordError);
   }
 
   /**
    * Delete user account & account password records.
-   * @param email User account email.
+   * @param userId User id.
    */
-  async deleteUser(email: string): Promise<any> {
+  async deleteUser(userId: string): Promise<any> {
     try {
-      const userId = await this.getUserIdForEmail(email);
-      if (!userId) {
-        return Promise.reject(new HttpError(404, "User not found"));
-      }
       const promises = [
         this.userStore.delete(userId),
         this.passwordStore.delete(userId),
       ];
       const user = await this.userStore.get(userId);
       if (user) {
-        promises.push(this.emailMapStore.delete(user.email));
+        promises.push(this.cacheMapStore.delete(user.email));
       }
 
       return Promise.all(promises);
@@ -342,65 +340,54 @@ export default class JwtAuth {
    * @param mobile User account mobile number.
    */
   async addMobile(
-    email: string,
+    userId: string,
     mobile: string,
     timeToLiveSeconds: number
-  ): Promise<string | undefined> {
+  ): Promise<string> {
     try {
-      const userId = await this.getUserIdForEmail(email);
-      if (userId) {
-        const user = await this.userStore.get(userId);
-        if (user) {
-          if (user.mobile === mobile && user.mobileVerified) {
-            return;
-          }
-          const ticketId = `${userId}/${mobile}`;
-          const ticket = nanoidTextCodeCreator();
-          await this.expiringTicketStore.put(
-            ticketId,
-            { ticket },
-            timeToLiveSeconds
-          );
-          const newUser = {
-            ...user,
-            mobile,
-            mobileVerified: false,
-          };
-          await this.userStore.put(userId, newUser);
-          return ticket;
+      const user = await this.userStore.get(userId);
+      if (user) {
+        if (user.mobile === mobile && user.mobileVerified) {
+          return Promise.reject(new HttpError(400, "mobile already verified"));
         }
+        const ticketId = `${userId}/${mobile}`;
+        const ticket = nanoidTextCodeCreator();
+        await this.expiringTicketStore.put(
+          ticketId,
+          { ticket },
+          timeToLiveSeconds
+        );
+        const newUser = {
+          ...user,
+          mobile,
+          mobileVerified: false,
+        };
+        await this.userStore.put(userId, newUser);
+        return ticket;
       }
     } catch (error) {
       log.error(error);
     }
     return Promise.reject(
-      new HttpError(400, "Error creating password reset ticket")
+      new HttpError(400, "Error creating mobile verify ticket")
     );
   }
 
   /**
    * Verify mobile number with a ticket.
-   * @param email User account email.
+   * @param userId User id.
    * @param ticket Mobile verification ticket value.
-   * @param mobile User mobile number.
    */
-  async verifyMobile(
-    email: string,
-    ticket: string,
-    mobile: string
-  ): Promise<User> {
+  async verifyMobile(userId: string, ticket: string): Promise<User> {
     try {
-      const userId = await this.getUserIdForEmail(email);
-      if (userId) {
-        const ticketId = `${userId}/${mobile}`;
+      const user = await this.userStore.get(userId);
+      if (user) {
+        const ticketId = `${userId}/${user.mobile}`;
         const verified = await this.verifyTicket(ticketId, ticket);
         if (verified) {
-          const user = await this.userStore.get(userId);
-          if (user) {
-            user.mobileVerified = true;
-            await this.userStore.put(userId, user);
-            return user;
-          }
+          user.mobileVerified = true;
+          await this.userStore.put(userId, user);
+          return user;
         } else {
           return Promise.reject(
             new HttpError(
@@ -413,10 +400,7 @@ export default class JwtAuth {
     } catch (error) {
       log.error(error);
       return Promise.reject(
-        new HttpError(
-          400,
-          `Error verifying mobile ${mobile}. Please try again.`
-        )
+        new HttpError(400, `Error verifying mobile. Please try again.`)
       );
     }
     return Promise.reject(
@@ -464,7 +448,7 @@ export default class JwtAuth {
     } catch (error) {
       log.error(error);
     }
-    return Promise.reject(emailOrPasswordError);
+    return Promise.reject(this.emailOrPasswordError);
   }
 
   private async verifyTicket(id: string, ticket: string): Promise<boolean> {
@@ -482,7 +466,7 @@ export default class JwtAuth {
 
   private async getUserIdForEmail(email: string): Promise<string | undefined> {
     this.validateEmailFormat(email);
-    return this.emailMapStore.get(email).then((box) => box?.userId);
+    return this.cacheMapStore.get(email).then((box) => box?.userId);
   }
 
   private validateEmailFormat(email: string) {
