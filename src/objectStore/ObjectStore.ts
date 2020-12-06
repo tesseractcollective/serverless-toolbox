@@ -2,7 +2,7 @@ export default interface ObjectStore<T> {
   get(id: string): Promise<T | undefined>;
   put(id: string, item: T): Promise<T>;
   delete(id: string): Promise<void>;
-  updateState(id: string, action: Action, reducer: Reducer<T>): Promise<T>;
+  updateState?(id: string, action: Action, reducer: Reducer<T>): Promise<T>;
 }
 
 // Follows Flux Standard Actions (see https://github.com/redux-utilities/flux-standard-action)

@@ -10,14 +10,18 @@ import ObjectStore, {
   Reducer,
   actionHandler,
 } from "./objectStore/ObjectStore";
+import ExpiringObjectStore from "./objectStore/ExpiringObjectStore";
 import DynamoDbObjectStore from "./objectStore/DynamoDbObjectStore";
+import DynamoDbExpiringObjectStore from "./objectStore/DynamoDbExpiringObjectStore";
 import S3ObjectStore from "./objectStore/S3ObjectStore";
 export {
   ObjectStore,
+  ExpiringObjectStore,
   Action,
   Reducer,
   actionHandler,
   DynamoDbObjectStore,
+  DynamoDbExpiringObjectStore,
   S3ObjectStore,
 };
 
