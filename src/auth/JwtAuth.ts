@@ -118,6 +118,23 @@ export default class JwtAuth {
   }
 
   /**
+   * Put a user.
+   * @param user User to put.
+   * @param passwordHash PasswordHash associated with user to put.
+   * @returns User
+   */
+  async putUser(user: User, passwordHash?: PasswordHash): Promise<User> {
+    if (passwordHash) {
+      await this.passwordStore.put(user.id, passwordHash);
+    }
+    await Promise.all([
+      this.userStore.put(user.id, user),
+      this.cacheMapStore.put(user.email, { userId: user.id }),
+    ]);
+    return user;
+  }
+
+  /**
    * Gets user.
    * @param id User id.
    */
@@ -174,10 +191,18 @@ export default class JwtAuth {
   }
 
   /**
+   * Gets the PasswordHash for user
+   * @param id id of user
+   */
+  async getUserPasswordHash(id: string): Promise<PasswordHash | undefined> {
+    return this.passwordStore.get(id);
+  }
+
+  /**
    * Delete user account & account password records.
    * @param userId User id.
    */
-  async deleteUser(userId: string): Promise<any> {
+  async deleteUser(userId: string): Promise<string> {
     try {
       const promises = [
         this.userStore.delete(userId),
@@ -187,8 +212,9 @@ export default class JwtAuth {
       if (user) {
         promises.push(this.cacheMapStore.delete(user.email));
       }
+      await Promise.all(promises);
 
-      return Promise.all(promises);
+      return userId;
     } catch (error) {
       return Promise.reject(new HttpError(400, error.message));
     }
@@ -424,7 +450,7 @@ export default class JwtAuth {
    * Creates JWT for user.
    * @param user User.
    */
-  createJwt(user: User) {
+  createJwt(user: User): string {
     const jwtData = this.jwtConfiguration(user);
     const options =
       this.jwtTimeToLive > 0 ? { expiresIn: this.jwtTimeToLive } : undefined;
@@ -439,7 +465,7 @@ export default class JwtAuth {
   async createJwtWithEmailPassword(
     email: string,
     password: string
-  ): Promise<string | undefined> {
+  ): Promise<string> {
     try {
       const user = await this.getUserWithEmailPassword(email, password);
       if (user) {

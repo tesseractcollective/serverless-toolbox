@@ -37,14 +37,22 @@ function createJwtAuth(): JwtAuth {
   );
 }
 
+let singletonUser: User;
+let singletonUserPasswordHash: PasswordHash | undefined;
 async function createAuthAndUser(): Promise<{ auth: JwtAuth; user: User }> {
   const auth = createJwtAuth();
-  const { user, token } = await auth.createUser(
-    testEmail,
-    testPassword,
-    testRole
-  );
-  return { auth, user };
+  if (!singletonUser && !singletonUserPasswordHash) {
+    const { user, token } = await auth.createUser(
+      testEmail,
+      testPassword,
+      testRole
+    );
+    singletonUser = user;
+    singletonUserPasswordHash = await auth.getUserPasswordHash(user.id);
+  } else {
+    await auth.putUser(singletonUser, singletonUserPasswordHash);
+  }
+  return { auth, user: {...singletonUser} };
 }
 
 async function sleep(timeout: number): Promise<void> {
@@ -81,9 +89,30 @@ describe("JwtAuth", () => {
     expect(user.id).toEqual(fetchedUser?.id);
   });
 
+  it("should get user passwordHash", async () => {
+    const { auth, user } = await createAuthAndUser();
+    const passwordHash = await auth.getUserPasswordHash(user.id);
+    expect(passwordHash?.hash).not.toBeNull();
+  });
+
+  it("should put a user", async () => {
+    const { auth } = await createAuthAndUser();
+    const id = 'other-id';
+    const user: User = {
+      id,
+      email: 'other@email.com',
+      emailVerified: false,
+      mobileVerified: false,
+      role: 'user'
+    }
+    await auth.putUser(user);
+    const testUser = await auth.getUser(id);
+    expect(testUser?.id).toEqual(id);
+  });
+
   it("should delete a user", async () => {
     const { auth, user } = await createAuthAndUser();
-    await auth.deleteUser(user.email);
+    await auth.deleteUser(user.id);
 
     let statusCode = 0;
     try {
