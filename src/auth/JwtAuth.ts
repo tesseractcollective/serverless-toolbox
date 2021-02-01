@@ -18,6 +18,7 @@ export interface User {
   mobile?: string;
   emailVerified: boolean;
   mobileVerified: boolean;
+  [key: string]: any;
 }
 export interface JwtData {
   sub: string;
