@@ -17,7 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "aws-serverless-express": "^3.3.8",
+    "@vendia/serverless-express": "^4.5.2",
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
