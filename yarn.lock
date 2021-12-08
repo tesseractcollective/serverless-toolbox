@@ -479,20 +479,6 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@types/aws-lambda@*":
-  version "8.10.71"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.71.tgz#ab3084038411ce42f63b975e67aafb163f3aa353"
-  integrity sha512-l0Lag6qq06AlKllprAJ3pbgVUbXCjRGRb7VpHow8IMn2BMHTPR0t5OD97/w8CR1+wA5XZuWQoXLjYvdlk2kQrQ==
-
-"@types/aws-serverless-express@^3.3.3":
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/@types/aws-serverless-express/-/aws-serverless-express-3.3.3.tgz#8af184bf16e1ba0269de318ac7b7fd638c7df70c"
-  integrity sha512-gIPinyiEsda2Z6Dx6GdQs47/GXaBGEGOMkYWtmqFDsVSDHzWtnIKBBBVQKyMdcK/0ZXa31zzlT+CobFnwNbsTQ==
-  dependencies:
-    "@types/aws-lambda" "*"
-    "@types/express" "*"
-    "@types/node" "*"
-
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.12"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.12.tgz#4d8e9e51eb265552a7e4f1ff2219ab6133bdfb2d"
@@ -555,7 +541,7 @@
     "@types/qs" "*"
     "@types/range-parser" "*"
 
-"@types/express@*", "@types/express@^4.17.6":
+"@types/express@^4.17.6":
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/@types/express/-/express-4.17.11.tgz#debe3caa6f8e5fcda96b47bd54e2f40c4ee59545"
   integrity sha512-no+R6rW60JEc59977wIxreQVsIEOAYwgCqldrA/vkpCnbD7MqTefO97lmoBe4WE0F156bC4uLSP1XHDOySnChg==
@@ -675,14 +661,6 @@
   integrity sha512-kQ5JNTrbDv3Rp5X2n/iUu37IJBDU2gsZ5R/g1/KHOOEc5IKfUFjXT6DENPGduh08I/pamwtEq4oul7gUqKTQDQ==
   dependencies:
     "@types/yargs-parser" "*"
-
-"@vendia/serverless-express@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@vendia/serverless-express/-/serverless-express-3.4.0.tgz#156f47d364b067ae6fa678a914c51887f494321a"
-  integrity sha512-/UAAbi9qRjUtjRISt5MJ1sfhtrHb26hqQ0nvE5qhMLsAdR5H7ErBwPD8Q/v2OENKm0iWsGwErIZEg7ebUeFDjQ==
-  dependencies:
-    binary-case "^1.0.0"
-    type-is "^1.6.16"
 
 "@vendia/serverless-express@^4.5.2":
   version "4.5.2"
@@ -869,15 +847,6 @@ aws-sdk@^2.674.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-aws-serverless-express@^3.3.8:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/aws-serverless-express/-/aws-serverless-express-3.4.0.tgz#74153b8cc80dbd2c6a32a51e6d353a325c2710d7"
-  integrity sha512-YG9ZjAOI9OpwqDDWzkRc3kKJYJuR7gTMjLa3kAWopO17myoprxskCUyCEee+RKe34tcR4UNrVtgAwW5yDe74bw==
-  dependencies:
-    "@vendia/serverless-express" "^3.4.0"
-    binary-case "^1.0.0"
-    type-is "^1.6.16"
-
 aws-sign2@~0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
@@ -983,11 +952,6 @@ bcryptjs@^2.4.3:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/bcryptjs/-/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
   integrity sha1-mrVie5PmBiH/fNrF2pczAn3x0Ms=
-
-binary-case@^1.0.0:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/binary-case/-/binary-case-1.1.4.tgz#d687104d59e38f2b9e658d3a58936963c59ab931"
-  integrity sha512-9Kq8m6NZTAgy05Ryuh7U3Qc4/ujLQU1AZ5vMw4cr3igTdi5itZC6kCNrRr2X8NzPiDn2oUIFTfa71DKMnue/Zg==
 
 body-parser@1.19.0:
   version "1.19.0"
@@ -4325,7 +4289,7 @@ type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
-type-is@^1.6.16, type-is@~1.6.17, type-is@~1.6.18:
+type-is@~1.6.17, type-is@~1.6.18:
   version "1.6.18"
   resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.18.tgz#4e552cd05df09467dcbc4ef739de89f2cf37c131"
   integrity sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==
