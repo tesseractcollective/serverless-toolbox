@@ -1,7 +1,5 @@
-import { APIGatewayProxyEvent, Context } from "aws-lambda";
-import serverlessExpress, {
-  getCurrentInvoke,
-} from "@vendia/serverless-express";
+import serverlessExpress from "@vendia/serverless-express";
+import { Handler } from "aws-lambda";
 import bodyParser from "body-parser";
 import express, { NextFunction, Request, Response } from "express";
 
@@ -13,7 +11,7 @@ export type RouterMap = { [path: string]: express.Router };
 export default class ApiGatewayExpress {
   readonly app = express();
   readonly routerMap: RouterMap;
-  readonly handler;
+  readonly handler: Handler;
 
   constructor(routerMap: RouterMap) {
     this.routerMap = routerMap;

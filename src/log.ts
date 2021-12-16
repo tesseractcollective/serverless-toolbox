@@ -17,11 +17,13 @@ export function error(...args: any) {
 
 function logHttpAccessFromExpress(req: any, res: any) {
   const now = Date.now();
+
   let ip = req.ip;
-  const currentInvoke = getCurrentInvoke();
-  if (!ip && currentInvoke.event) {
+  if (!ip) {
+    const currentInvoke = getCurrentInvoke();
     ip = currentInvoke.event.requestContext.identity.sourceIp;
   }
+
   let requester: string;
   if (req.auth && req.auth.user) {
     requester = `[User:${req.auth.user.id}]`;
