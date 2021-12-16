@@ -1,3 +1,5 @@
+import { getCurrentInvoke } from "@vendia/serverless-express";
+
 const isDebug = process.env.DEBUG || true;
 
 export function debug(...args: any) {
@@ -15,10 +17,13 @@ export function error(...args: any) {
 
 function logHttpAccessFromExpress(req: any, res: any) {
   const now = Date.now();
+
   let ip = req.ip;
-  if (!ip && req.apiGateway && req.apiGateway.event) {
-    ip = req.apiGateway.event.requestContext.identity.sourceIp;
+  if (!ip) {
+    const currentInvoke = getCurrentInvoke();
+    ip = currentInvoke.event.requestContext.identity.sourceIp;
   }
+
   let requester: string;
   if (req.auth && req.auth.user) {
     requester = `[User:${req.auth.user.id}]`;
