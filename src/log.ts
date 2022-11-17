@@ -1,4 +1,5 @@
 import { getCurrentInvoke } from "@vendia/serverless-express";
+import { APIGatewayProxyEvent } from "aws-lambda";
 
 const isDebug = process.env.DEBUG || true;
 
@@ -65,7 +66,7 @@ export function logApiGatewayWebsocket(
 }
 
 export function logApiGatewayEvent(
-  event: any,
+  event: APIGatewayProxyEvent,
   options?: { onlyWhenDebug: boolean }
 ) {
   const logger = options?.onlyWhenDebug ? debug : info;
@@ -73,5 +74,29 @@ export function logApiGatewayEvent(
   logger(JSON.stringify(event));
   if (event.body) {
     logger(event.body);
+  }
+}
+
+function copyDataObscuringPasswordFields(data: any) {
+  for (const key in data) {
+    if (typeof data[key] === "object") {
+      data[key] = copyDataObscuringPasswordFields(data[key]);
+    } else if (key == "password") {
+      data[key] = "XXXXXXXXXX";
+    }
+  }
+  return data;
+}
+
+export function logApiGatewayEventSafelyWithPasswords(
+  event: APIGatewayProxyEvent
+) {
+  if (event.body && event.body.includes("password")) {
+    const eventCopy = { ...event };
+    const body = JSON.parse(event.body);
+    eventCopy.body = JSON.stringify(copyDataObscuringPasswordFields(body));
+    logApiGatewayEvent(eventCopy, { onlyWhenDebug: true });
+  } else {
+    logApiGatewayEvent(event, { onlyWhenDebug: true });
   }
 }

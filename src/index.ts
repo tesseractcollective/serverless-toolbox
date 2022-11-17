@@ -1,6 +1,9 @@
 // logs
 export * as log from "./log";
 
+// express middleware
+export * from "./express/expressMiddleware";
+
 // utilities
 export * from "./utilities";
 
@@ -65,7 +68,7 @@ import SubscriptionHandler, {
   Subscription,
   Subscriber,
 } from "./apiGateway/SubscriptionHandler";
-import HttpError from "./apiGateway/HttpError";
+import HttpError from "./express/HttpError";
 export {
   ApiGatewayExpress,
   ApiGatewayWebSockets,
